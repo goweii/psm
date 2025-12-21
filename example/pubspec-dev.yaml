@@ -1,0 +1,3 @@
+dependsOn: pubspec-base.yaml
+
+name: dev
