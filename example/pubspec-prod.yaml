@@ -1,0 +1,11 @@
+depends_on: pubspec-base.yaml
+
+name: example
+version: 1.0.0+1
+
+dependencies:
+  # 空的依赖会被移除
+  psm:
+
+names_launcher:
+  name: "PSM Example"

@@ -11,9 +11,19 @@ dependencies:
   flutter:
     sdk: "flutter"
   cupertino_icons: "^1.0.8"
+  psm:
+    path: "../"
 dev_dependencies:
   flutter_test:
     sdk: "flutter"
   flutter_lints: "^5.0.0"
+  names_launcher: "^0.0.2"
 flutter:
   uses-material-design: true
+names_launcher:
+  name: "PSM Example for test"
+  platforms:
+    android:
+      enable: true
+    ios:
+      enable: true

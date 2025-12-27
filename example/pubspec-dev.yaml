@@ -1,3 +1,17 @@
-dependsOn: pubspec-base.yaml
+depends_on: pubspec-base.yaml
 
-name: dev
+name: example
+version: 1.0.0-dev+1
+
+dependencies:
+  # 空的依赖会被移除
+  cupertino_icons:
+    git:
+      url:
+  psm:
+    git:
+      url: https://github.com/goweii/psm.git
+      ref: main
+
+names_launcher:
+  name: "PSM Example for dev"

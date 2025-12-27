@@ -20,7 +20,7 @@ class PubspecUtils {
 
 ''';
 
-  static const dependsOnKey = 'dependsOn';
+  static const dependsOnKey = 'depends_on';
 
   static String getPubspecNameByFlavor(String flavor) {
     return 'pubspec-$flavor.yaml';

@@ -79,7 +79,7 @@ class UseCommand extends Command {
     final needPubClean = argResults!['pub-clean'] as bool;
     final needPubGet = argResults!['pub-get'] as bool;
     if (needPubClean || needPubGet) {
-      final flutterVersion = yamlEditor.getValue(['dependencies', 'flutter']);
+      final flutterVersion = yamlEditor.get(['dependencies', 'flutter']);
       final isFlutter = flutterVersion != null;
       if (needPubClean) {
         _runPubClean(isFlutter: isFlutter);
