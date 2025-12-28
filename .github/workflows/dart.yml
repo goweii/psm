@@ -102,22 +102,39 @@ jobs:
       - name: Get version from pubspec.yaml
         run: echo "VERSION=$(awk '/^version:/ {print $2}' pubspec.yaml)" >> $GITHUB_ENV
 
+      # 创建 artifact 目录
+      - name: Create artifact directory
+        run: mkdir -p artifact
+
       # 下载缓存文件
       - name: Download MacOS Artifact
         uses: actions/download-artifact@v4
         with:
           name: macos-release
-          path: artifact
+          path: artifact/macos
       - name: Download Windows Artifact
         uses: actions/download-artifact@v4
         with:
           name: windows-release
-          path: artifact
+          path: artifact/windows
       - name: Download Linux Artifact
         uses: actions/download-artifact@v4
         with:
           name: linux-release
-          path: artifact
+          path: artifact/linux
+
+      # 重命名并压缩文件，保持原始文件名
+      - name: Prepare MacOS release asset
+        run: |
+          chmod +x artifact/macos/psm
+          cd artifact/macos && zip -r ../macos-release.zip psm
+      - name: Prepare Windows release asset
+        run: |
+          cd artifact/windows && zip -r ../windows-release.zip psm
+      - name: Prepare Linux release asset
+        run: |
+          chmod +x artifact/linux/psm
+          cd artifact/linux && zip -r ../linux-release.zip psm
 
       # 创建 Release
       - name: Create Release
