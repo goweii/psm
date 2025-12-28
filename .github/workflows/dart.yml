@@ -1,0 +1,98 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Compile PSM exe
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "pubspec.yaml"
+
+permissions:
+  # 允许写入内容（如创建发布）
+  contents: write
+
+jobs:
+  build_on_macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Note: This workflow uses the latest stable version of the Dart SDK.
+      # You can specify other versions if desired, see documentation here:
+      # https://github.com/dart-lang/setup-dart/blob/main/README.md
+      # - uses: dart-lang/setup-dart@v1
+      - uses: dart-lang/setup-dart@9a04e6d73cca37bd455e0608d7e5092f881fd603
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Compile exe
+        run: |
+          mkdir output/macos
+          dart compile exe --target-os macos --output ./output/macos/psm ./bin/psm.dart
+
+      # 上传编译产物文件
+      - name: Upload MacOS Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-release
+          path: ./output/macos/psm
+          retention-days: 1
+
+  build_on_windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Note: This workflow uses the latest stable version of the Dart SDK.
+      # You can specify other versions if desired, see documentation here:
+      # https://github.com/dart-lang/setup-dart/blob/main/README.md
+      # - uses: dart-lang/setup-dart@v1
+      - uses: dart-lang/setup-dart@9a04e6d73cca37bd455e0608d7e5092f881fd603
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Compile exe
+        run: |
+          mkdir output/windows
+          dart compile exe --target-os windows --output ./output/windows/psm ./bin/psm.dart
+
+      # 上传编译产物文件
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: /output/windows/psm
+          retention-days: 1
+
+  build_on_linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Note: This workflow uses the latest stable version of the Dart SDK.
+      # You can specify other versions if desired, see documentation here:
+      # https://github.com/dart-lang/setup-dart/blob/main/README.md
+      # - uses: dart-lang/setup-dart@v1
+      - uses: dart-lang/setup-dart@9a04e6d73cca37bd455e0608d7e5092f881fd603
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Compile exe
+        run: |
+          mkdir output/linux
+          dart compile exe --target-os linux --output ./output/linux/psm ./bin/psm.dart
+
+      # 上传编译产物文件
+      - name: Upload Linux Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-release
+          path: ./output/linux/psm
+          retention-days: 1
