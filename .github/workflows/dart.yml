@@ -31,16 +31,14 @@ jobs:
         run: dart pub get
 
       - name: Compile exe
-        run: |
-          mkdir output/macos
-          dart compile exe --target-os macos --output ./output/macos/psm ./bin/psm.dart
+        run: dart compile exe --target-os macos --output psm ./bin/psm.dart
 
       # 上传编译产物文件
       - name: Upload MacOS Artifact
         uses: actions/upload-artifact@v4
         with:
           name: macos-release
-          path: ./output/macos/psm
+          path: psm
           retention-days: 1
 
   build_on_windows:
@@ -58,16 +56,14 @@ jobs:
         run: dart pub get
 
       - name: Compile exe
-        run: |
-          mkdir output/windows
-          dart compile exe --target-os windows --output ./output/windows/psm ./bin/psm.dart
+        run: dart compile exe --target-os windows --output psm ./bin/psm.dart
 
       # 上传编译产物文件
       - name: Upload Windows Artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-release
-          path: /output/windows/psm
+          path: psm
           retention-days: 1
 
   build_on_linux:
@@ -85,14 +81,12 @@ jobs:
         run: dart pub get
 
       - name: Compile exe
-        run: |
-          mkdir output/linux
-          dart compile exe --target-os linux --output ./output/linux/psm ./bin/psm.dart
+        run: dart compile exe --target-os linux --output psm ./bin/psm.dart
 
       # 上传编译产物文件
       - name: Upload Linux Artifact
         uses: actions/upload-artifact@v4
         with:
           name: linux-release
-          path: ./output/linux/psm
+          path: psm
           retention-days: 1

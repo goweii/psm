@@ -1,6 +1,6 @@
 name: psm
 description: PSM (Pubspec Management) is a command-line tool for managing pubspec configurations in Flutter and Dart projects. It allows developers to easily switch between different flavor configurations, such as development, testing, and production environments, by managing different pubspec files to achieve quick configuration switching.
-version: 0.0.1-beta.0
+version: 0.0.1-beta.1
 repository: https://github.com/goweii/psm
 issue_tracker: https://github.com/goweii/psm/issues
 
