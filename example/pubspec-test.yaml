@@ -1,7 +1,0 @@
-depends_on: pubspec-base.yaml
-
-name: example
-version: 1.0.0+1
-
-names_launcher:
-  name: "PSM Example for test"
