@@ -90,3 +90,77 @@ jobs:
           name: linux-release
           path: psm
           retention-days: 1
+
+  create_release:
+    needs: [build_on_macos, build_on_windows, build_on_linux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      # 从 pubspec.yaml 中读取版本号
+      - name: Get version from pubspec.yaml
+        run: echo "VERSION=$(awk '/^version:/ {print $2}' pubspec.yaml)" >> $GITHUB_ENV
+
+      # 下载缓存文件
+      - name: Download MacOS Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-release
+          path: artifact
+      - name: Download Windows Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-release
+          path: artifact
+      - name: Download Linux Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-release
+          path: artifact
+
+      # 创建 Release
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.VERSION }}
+          release_name: Release ${{ env.VERSION }}
+          body: |
+            Automatic release for version ${{ env.VERSION }}
+          draft: false
+          prerelease: false
+
+      # 上传缓存文件到 Release
+      - name: Upload MacOS Cache to Release
+        id: upload_macos_cache
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifact/macos-release.dmg
+          asset_name: macos-release.dmg
+          asset_content_type: application/zip
+      - name: Upload Windows Cache to Release
+        id: upload_windows_cache
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifact/windows-release.zip
+          asset_name: windows-release.zip
+          asset_content_type: application/zip
+      - name: Upload Linux Cache to Release
+        id: upload_linux_cache
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifact/linux-release.zip
+          asset_name: linux-release.zip
+          asset_content_type: application/zip
