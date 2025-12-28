@@ -3,7 +3,6 @@ description: PSM (Pubspec Management) is a command-line tool for managing pubspe
 version: 0.0.1
 repository: https://github.com/goweii/psm
 issue_tracker: https://github.com/goweii/psm/issues
-publish_to: https://pub.dartlang.org
 
 environment:
   sdk: ^3.9.2
