@@ -141,8 +141,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifact/macos-release.dmg
-          asset_name: macos-release.dmg
+          asset_path: artifact/macos-release.zip
+          asset_name: macos-release.zip
           asset_content_type: application/zip
       - name: Upload Windows Cache to Release
         id: upload_windows_cache
