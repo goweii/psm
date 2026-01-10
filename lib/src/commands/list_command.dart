@@ -1,8 +1,9 @@
-import 'dart:io';
-
-import 'package:path/path.dart' as path;
 import 'package:args/command_runner.dart';
-import 'package:psm/src/utils/pubspec_utils.dart';
+import 'package:psm/src/tasks/get_current_flavors_task.dart';
+import 'package:psm/src/tasks/get_flavor_dependiencies_task.dart';
+import 'package:psm/src/tasks/list_available_flavors_task.dart';
+import 'package:psm/src/utils/logger.dart';
+import 'package:psm/src/utils/project.dart';
 
 class ListCommand extends Command {
   @override
@@ -14,75 +15,60 @@ class ListCommand extends Command {
   ListCommand() {
     argParser.addFlag(
       'show-dependency',
+      abbr: 'd',
       help: 'Show YAML dependency',
       defaultsTo: false,
       negatable: false,
     );
   }
 
+  late bool showDependency = () {
+    return argResults!['show-dependency'] as bool;
+  }();
+
   @override
-  void run() {
-    final showDependency = argResults!['show-dependency'] as bool;
+  Future<void> run() async {
+    final project = Project.current();
 
-    final dir = Directory.current;
-
-    final favors = <String>[];
-
-    final fileList = dir.listSync().whereType<File>();
-    for (var file in fileList) {
-      final basename = path.basename(file.path);
-      final flavor = PubspecUtils.getFlavorFromPubspecName(basename);
-      if (flavor.isNotEmpty) {
-        favors.add(flavor);
-      }
-    }
-
-    String? currentFlavor;
-
-    final pubspecFile = File(PubspecUtils.pubspecName);
-    if (pubspecFile.existsSync()) {
-      final symbolicLinks = pubspecFile.resolveSymbolicLinksSync();
-      final isLink = symbolicLinks != pubspecFile.absolute.path;
-      if (isLink) {
-        final filename = path.basename(symbolicLinks);
-        final flavor = PubspecUtils.getFlavorFromMergedPubspecName(filename);
-        if (flavor.isNotEmpty) {
-          currentFlavor = flavor;
-        }
-      }
-    }
-
-    final dependiencies = <String, List<String>>{};
+    final currentFlavor = await GetCurrentFlavorsTask(project).run();
+    final availableFlavors = await ListAvailableFlavorsTask(project).run();
+    final flavorDependiencies = <String, List<String>>{};
     if (showDependency) {
-      for (var flavor in favors) {
-        final filename = PubspecUtils.getPubspecNameByFlavor(flavor);
-        final depends = PubspecUtils.getDependencyFromPubspecName(filename);
-        dependiencies[flavor] = depends
-            .map((e) => PubspecUtils.getFlavorFromPubspecName(e))
-            .toList();
+      for (final flavor in availableFlavors) {
+        final dependiencies = await GetFlavorDependienciesTask(
+          project: project,
+          flavor: flavor,
+        ).run();
+        flavorDependiencies[flavor] = dependiencies;
       }
     }
 
-    print('There are ${favors.length} flavors available:');
+    if (availableFlavors.length > 1) {
+      Logger.success('There are ${availableFlavors.length} flavors available:');
+    } else {
+      Logger.success('There is ${availableFlavors.length} flavor available:');
+    }
 
-    for (var flavor in favors) {
+    for (var flavor in availableFlavors) {
+      final isCurrent = currentFlavor == flavor;
       final buffer = StringBuffer();
-
-      if (currentFlavor == flavor) {
-        buffer.write('* $flavor (current)');
+      if (isCurrent) {
+        buffer.write('* $flavor');
       } else {
         buffer.write('  $flavor');
       }
-
       if (showDependency) {
-        final depends = dependiencies[flavor];
+        final depends = flavorDependiencies[flavor];
         if (depends != null && depends.length > 1) {
           buffer.write(' -> ');
           buffer.write(depends.skip(1).join(' -> '));
         }
       }
-
-      print(buffer.toString());
+      if (isCurrent) {
+        Logger.info(buffer.toString());
+      } else {
+        Logger.log(buffer.toString());
+      }
     }
   }
 }

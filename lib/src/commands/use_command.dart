@@ -1,8 +1,9 @@
-import 'dart:io';
-
 import 'package:args/command_runner.dart';
-import 'package:psm/src/utils/pubspec_utils.dart';
-import 'package:psm/src/utils/yaml_editor.dart';
+import 'package:psm/src/tasks/ensure_init_task.dart';
+import 'package:psm/src/tasks/run_pub_clean_task.dart';
+import 'package:psm/src/tasks/run_pub_get_task.dart';
+import 'package:psm/src/tasks/use_flavor_task.dart';
+import 'package:psm/src/utils/project.dart';
 
 class UseCommand extends Command {
   @override
@@ -37,72 +38,34 @@ class UseCommand extends Command {
     );
   }
 
-  @override
-  void run() {
-    final arguments = argResults!.rest;
+  late bool needPubClean = () {
+    return argResults!['pub-clean'] as bool;
+  }();
 
+  late bool needPubGet = () {
+    return argResults!['pub-get'] as bool;
+  }();
+
+  late String flavor = () {
+    final arguments = argResults!.rest;
     if (arguments.isEmpty) {
       usageException('Please specify a flavor.');
     } else if (arguments.length > 1) {
       usageException('Please specify only one flavor.');
     }
+    return arguments.first;
+  }();
 
-    final flavor = arguments.first;
-
-    final flavorPubspecName = PubspecUtils.getPubspecNameByFlavor(flavor);
-    final flavorPubspecFile = File(flavorPubspecName);
-    if (!flavorPubspecFile.existsSync()) {
-      throw Exception('No $flavorPubspecName file found.');
+  @override
+  Future<void> run() async {
+    final project = Project.current();
+    await EnsureInitTask(project).run();
+    await UseFlavorTask(project: project, flavor: flavor).run();
+    if (needPubClean) {
+      await RunPubCleanTask(project).run();
     }
-
-    final pubspecName = PubspecUtils.pubspecName;
-    final pubspecFile = File(pubspecName);
-
-    if (pubspecFile.existsSync()) {
-      final symbolicLinks = pubspecFile.resolveSymbolicLinksSync();
-      final isLink = symbolicLinks != pubspecFile.absolute.path;
-      if (!isLink) {
-        throw Exception("Please run 'psm init' first.");
-      }
-      pubspecFile.deleteSync();
-    }
-
-    PubspecUtils.deleteMergedPubspecFiles(pubspecFile.parent);
-
-    final mergedPubspecName = PubspecUtils.getMergePubspecNameByFlavor(flavor);
-    final mergedPubspecFile = File(mergedPubspecName);
-    final yamlEditor = YamlEditor.fromFile(flavorPubspecName);
-    yamlEditor.writeToFile(mergedPubspecFile);
-
-    Link(pubspecName).createSync(mergedPubspecName);
-
-    final needPubClean = argResults!['pub-clean'] as bool;
-    final needPubGet = argResults!['pub-get'] as bool;
-    if (needPubClean || needPubGet) {
-      final flutterVersion = yamlEditor.get(['dependencies', 'flutter']);
-      final isFlutter = flutterVersion != null;
-      if (needPubClean) {
-        _runPubClean(isFlutter: isFlutter);
-      }
-      if (needPubGet) {
-        _runPubGet(isFlutter: isFlutter);
-      }
-    }
-  }
-
-  void _runPubClean({required bool isFlutter}) {
-    if (isFlutter) {
-      Process.runSync('flutter', ['pub', 'clean'], runInShell: true);
-    } else {
-      Process.runSync('dart', ['pub', 'clean'], runInShell: true);
-    }
-  }
-
-  void _runPubGet({required bool isFlutter}) {
-    if (isFlutter) {
-      Process.runSync('flutter', ['pub', 'get'], runInShell: true);
-    } else {
-      Process.runSync('dart', ['pub', 'get'], runInShell: true);
+    if (needPubGet) {
+      await RunPubGetTask(project).run();
     }
   }
 }

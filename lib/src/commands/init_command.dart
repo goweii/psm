@@ -1,8 +1,9 @@
-import 'dart:io';
-
 import 'package:args/command_runner.dart';
-import 'package:psm/src/utils/pubspec_utils.dart';
-import 'package:psm/src/utils/yaml_editor.dart';
+import 'package:cli_spin/cli_spin.dart';
+import 'package:psm/src/tasks/check_init_task.dart';
+import 'package:psm/src/tasks/init_task.dart';
+import 'package:psm/src/tasks/input_flavor_task.dart';
+import 'package:psm/src/utils/project.dart';
 
 class InitCommand extends Command {
   @override
@@ -14,45 +15,13 @@ class InitCommand extends Command {
   InitCommand();
 
   @override
-  void run() {
-    final pubspecName = PubspecUtils.pubspecName;
-    final pubspecFile = File(pubspecName);
-
-    if (!pubspecFile.existsSync()) {
-      throw Exception('No $pubspecName file found.');
-    }
-
-    final symbolicLinks = pubspecFile.resolveSymbolicLinksSync();
-    final isLink = symbolicLinks != pubspecFile.absolute.path;
-
-    if (isLink) {
-      print('Already initialized.');
+  Future<void> run() async {
+    final project = Project.current();
+    if (await CheckInitTask(project).run()) {
+      CliSpin().success('Already Initialized.');
       return;
     }
-
-    stdout.write('Please input flavor name (default: base): ');
-    String flavor = stdin.readLineSync() ?? '';
-    if (flavor.isEmpty) {
-      flavor = 'base';
-    }
-
-    final flavorPubspecName = PubspecUtils.getPubspecNameByFlavor(flavor);
-    final flavorPubspecFile = File(flavorPubspecName);
-    if (flavorPubspecFile.existsSync()) {
-      throw Exception('$flavorPubspecName file already exists.');
-    }
-    pubspecFile.copySync(flavorPubspecName);
-
-    final mergedPubspecName = PubspecUtils.getMergePubspecNameByFlavor(flavor);
-    final mergedPubspecFile = File(mergedPubspecName);
-    if (mergedPubspecFile.existsSync()) {
-      mergedPubspecFile.deleteSync();
-    }
-    final yamlEditor = YamlEditor.fromFile(flavorPubspecName);
-    yamlEditor.writeToFile(mergedPubspecFile);
-
-    pubspecFile.deleteSync();
-
-    Link(pubspecName).createSync(mergedPubspecName);
+    final flavor = await InputFlavorTask().run();
+    await InitTask(project: project, flavor: flavor).run();
   }
 }

@@ -4,6 +4,7 @@ import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
 
 class PubspecUtils {
+  static final flavorRegExp = RegExp(r'^[\w\d_-]+$');
   static final flavorPubspecRegExp = RegExp(r'pubspec-(?<flavor>[\w]+)\.yaml');
   static final flavorMergedPubspecRegExp = RegExp(
     r'pubspec-(?<flavor>[\w]+)\.g\.yaml',
@@ -21,6 +22,10 @@ class PubspecUtils {
 ''';
 
   static const dependsOnKey = 'depends_on';
+
+  static bool checkFlavorName(String flavor) {
+    return flavorRegExp.hasMatch(flavor);
+  }
 
   static String getPubspecNameByFlavor(String flavor) {
     return 'pubspec-$flavor.yaml';
