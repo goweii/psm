@@ -9,7 +9,7 @@ import 'commands/init_command.dart';
 import 'commands/list_command.dart';
 import 'commands/use_command.dart';
 
-const String version = '0.0.1-beta.5';
+const String version = '0.0.2';
 const String name = 'psm';
 const String description = '''Pubspec Management
 A command line tool to change the pubspec file according to the selected flavor.''';
