@@ -7,13 +7,18 @@ import 'package:psm/src/utils/project.dart';
 import 'package:psm/src/utils/pubspec_utils.dart';
 import 'package:psm/src/utils/yaml_editor.dart';
 
+/// Task that initializes the project for flavor management
+/// Creates the initial flavor configuration files and sets up symbolic links
 class InitTask extends Task<void> {
+  /// Creates a new instance of [InitTask]
   const InitTask({required this.project, required this.flavor});
 
   final Project project;
 
   final String flavor;
 
+  /// Executes the initialization task
+  /// Creates flavor-specific pubspec file, sets up symbolic links, and shows progress with a spinner
   @override
   Future<void> run() async {
     final spinner = CliSpin(

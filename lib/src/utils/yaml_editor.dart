@@ -6,9 +6,14 @@ import 'package:yaml_writer/yaml_writer.dart';
 
 import 'pubspec_utils.dart';
 
+/// A utility class for editing YAML files
+/// Supports loading, merging, and manipulating YAML content
 class YamlEditor {
+  /// Creates a new instance of [YamlEditor]
   YamlEditor();
 
+  /// Creates a [YamlEditor] instance by loading a YAML file
+  /// Recursively loads parent files based on 'depends_on' relationships
   factory YamlEditor.fromFile(String filename) {
     final editor = YamlEditor();
 
@@ -37,6 +42,8 @@ class YamlEditor {
 
   final _yaml = {};
 
+  /// Merges another YAML source into this editor's content
+  /// The source can be a Map, YamlMap, String, or File
   void merge(dynamic other) {
     dynamic yaml = other;
     if (yaml is File) {
@@ -55,6 +62,7 @@ class YamlEditor {
     }
   }
 
+  /// Checks if the given path exists in the YAML structure
   bool has(List<String> path) {
     bool contains = true;
     dynamic current = _yaml;
@@ -74,6 +82,7 @@ class YamlEditor {
     return contains;
   }
 
+  /// Removes the value at the given path from the YAML structure
   dynamic remove(List<String> path) {
     if (path.isEmpty) {
       _yaml.clear();
@@ -89,6 +98,7 @@ class YamlEditor {
     return null;
   }
 
+  /// Gets the value at the given path from the YAML structure
   dynamic get(List<String> path) {
     dynamic current = _yaml;
     for (var key in path) {
@@ -101,6 +111,7 @@ class YamlEditor {
     return current;
   }
 
+  /// Sets the value at the given path in the YAML structure
   void set(List<String> path, dynamic value) {
     void setToMap(Map map, List<String> path, dynamic value) {
       if (path.isEmpty) {
@@ -133,10 +144,12 @@ class YamlEditor {
     setToMap(_yaml, path, value);
   }
 
+  /// Writes the YAML content to the specified file
   void writeToFile(File file) {
     file.writeAsStringSync(toString());
   }
 
+  /// Converts the YAML structure to a string representation
   @override
   String toString() {
     final buffer = StringBuffer();

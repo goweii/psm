@@ -9,12 +9,21 @@ import 'commands/init_command.dart';
 import 'commands/list_command.dart';
 import 'commands/use_command.dart';
 
-const String version = '0.0.2';
+/// Version of the PSM package
+const String version = '0.0.3';
+
+/// Name of the PSM package
 const String name = 'psm';
+
+/// Description of the PSM package
 const String description = '''Pubspec Management
 A command line tool to change the pubspec file according to the selected flavor.''';
 
+/// Command runner for PSM (Pubspec Management) tool
+/// Handles initialization, listing and switching between different flavors of pubspec configuration
 class PsmCommandRunner extends CommandRunner<void> {
+  /// Creates a new instance of [PsmCommandRunner]
+  /// Sets up basic flags and registers all available commands
   PsmCommandRunner() : super(name, description) {
     argParser.addFlag(
       'version',
@@ -28,6 +37,8 @@ class PsmCommandRunner extends CommandRunner<void> {
     addCommand(UseCommand());
   }
 
+  /// Runs the command with the given arguments
+  /// Handles different types of exceptions and exits with appropriate codes
   @override
   Future<void> run(Iterable<String> args) async {
     try {
@@ -44,6 +55,8 @@ class PsmCommandRunner extends CommandRunner<void> {
     }
   }
 
+  /// Executes a command with the top-level results
+  /// Checks for version flag before executing the command
   @override
   Future<void> runCommand(ArgResults topLevelResults) async {
     if (topLevelResults.flag('version')) {

@@ -7,12 +7,18 @@ import 'package:psm/src/utils/project.dart';
 import 'package:psm/src/utils/pubspec_utils.dart';
 import 'package:psm/src/utils/yaml_editor.dart';
 
+/// Task that applies a specific flavor to the project
+/// Updates the pubspec file with the selected flavor configuration
 class UseFlavorTask extends Task<void> {
+  /// Creates a new instance of [UseFlavorTask]
   const UseFlavorTask({required this.project, required this.flavor});
 
   final Project project;
   final String flavor;
 
+  /// Executes the task to apply the specified flavor
+  /// Processes the flavor configuration, merges dependencies, and updates the pubspec file
+  /// Shows progress with a spinner and handles success or failure
   @override
   Future<void> run() async {
     final spinner = CliSpin(

@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
 
+/// Utility class for handling pubspec-related operations
+/// Contains methods for naming conventions, file validation, and dependency resolution
 class PubspecUtils {
   static final flavorRegExp = RegExp(r'^[\w\d_-]+$');
   static final flavorPubspecRegExp = RegExp(r'pubspec-(?<flavor>[\w]+)\.yaml');
@@ -23,18 +25,23 @@ class PubspecUtils {
 
   static const dependsOnKey = 'depends_on';
 
+  /// Validates if the given flavor name matches the required format
   static bool checkFlavorName(String flavor) {
     return flavorRegExp.hasMatch(flavor);
   }
 
+  /// Returns the filename for a pubspec file corresponding to the given flavor
   static String getPubspecNameByFlavor(String flavor) {
     return 'pubspec-$flavor.yaml';
   }
 
+  /// Returns the filename for a merged pubspec file corresponding to the given flavor
   static String getMergePubspecNameByFlavor(String flavor) {
     return 'pubspec-$flavor.g.yaml';
   }
 
+  /// Extracts the flavor name from a pubspec filename
+  /// Returns an empty string if the filename doesn't match the expected pattern
   static String getFlavorFromPubspecName(String pubspecName) {
     final match = flavorPubspecRegExp.firstMatch(pubspecName);
     if (match != null) {
@@ -43,6 +50,8 @@ class PubspecUtils {
     return '';
   }
 
+  /// Extracts the flavor name from a merged pubspec filename
+  /// Returns an empty string if the filename doesn't match the expected pattern
   static String getFlavorFromMergedPubspecName(String pubspecName) {
     final match = flavorMergedPubspecRegExp.firstMatch(pubspecName);
     if (match != null) {
@@ -51,6 +60,7 @@ class PubspecUtils {
     return '';
   }
 
+  /// Deletes all merged pubspec files in the given directory
   static void deleteMergedPubspecFiles(Directory directory) {
     for (final file in directory.listSync(recursive: false)) {
       if (file is File) {
@@ -64,6 +74,8 @@ class PubspecUtils {
     }
   }
 
+  /// Gets the dependency chain for a given pubspec file
+  /// Resolves the 'depends_on' relationships recursively
   static List<String> getDependencyFromPubspecName(String filename) {
     final filenames = <String>[];
 

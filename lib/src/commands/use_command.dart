@@ -5,6 +5,7 @@ import 'package:psm/src/tasks/run_pub_get_task.dart';
 import 'package:psm/src/tasks/use_flavor_task.dart';
 import 'package:psm/src/utils/project.dart';
 
+/// A command that switches to a specific flavor configuration
 class UseCommand extends Command {
   @override
   String get name => 'use';
@@ -12,6 +13,7 @@ class UseCommand extends Command {
   @override
   String get description => 'Use pubspec according to the flavor';
 
+  /// Returns the usage string for this command
   @override
   String get invocation {
     var parents = [name];
@@ -23,6 +25,8 @@ class UseCommand extends Command {
     return '$invocation <flavor>';
   }
 
+  /// Creates a new instance of [UseCommand]
+  /// Sets up flags for pub-clean and pub-get operations
   UseCommand() {
     argParser.addFlag(
       'pub-clean',
@@ -38,14 +42,18 @@ class UseCommand extends Command {
     );
   }
 
+  /// Determines whether to run pub clean after applying the flavor
   late bool needPubClean = () {
     return argResults!['pub-clean'] as bool;
   }();
 
+  /// Determines whether to run pub get after applying the flavor
   late bool needPubGet = () {
     return argResults!['pub-get'] as bool;
   }();
 
+  /// Gets the flavor name from command arguments
+  /// Throws an exception if no flavor or multiple flavors are specified
   late String flavor = () {
     final arguments = argResults!.rest;
     if (arguments.isEmpty) {
@@ -56,6 +64,9 @@ class UseCommand extends Command {
     return arguments.first;
   }();
 
+  /// Executes the use command
+  /// Ensures the project is initialized, applies the specified flavor,
+  /// and optionally runs pub clean and pub get
   @override
   Future<void> run() async {
     final project = Project.current();
